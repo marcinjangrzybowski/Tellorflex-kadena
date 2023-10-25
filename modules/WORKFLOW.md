@@ -1,14 +1,15 @@
 # Workflow
 
-This document provides a comprehensive explanation of crucial procedures implemented in the Pact programming language for the operation of the Tellor oracle system. It covers the significant processes that serve as the backbone of the Tellor ecosystem - Staking, Reporting, and Voting, inclusive of Dispute Resolution and Vote Execution. It elucidates how each function operates in detail, emphasizing the specific validation checks, consequential steps, and important interactions involved. The objective is to present a clear and thorough understanding of how the Tellor system, built on Pact, effectively establishes a robust and secure environment for validators, reporters, and voters.
+This document provides a comprehensive explanation of how Pact code from this module operates to implement the Tellor oracle system. It covers the significant processes that serve as the backbone of the Tellor ecosystem - Staking, Reporting, and Voting, inclusive of Dispute Resolution and Vote Execution.
+It elucidates how each function operates in detail, emphasizing the specific validation checks, consequential steps, and important interactions involved. The objective is to present a clear and thorough understanding of how the Tellor system, poorted to Pact, effectively establishes a robust and secure environment for validators, reporters, and voters.
 
 All snipets are excerpts from code in this directory.
 
-### Staking Process:
+### 1 Staking Process:
 
 Staking is a core mechanism in the Tellor system, wherein validators (referred to as stakers) pledge collateral to ensure honest behavior. The staking process involves locking a specified amount of TRB tokens (Tellor's native cryptocurrency) to secure the right to submit data to the Tellor network.
 
-1. **Initiating the Stake:**
+**1.1. Initiating the Stake:**
 
     A user initiates the staking process by invoking the `deposit-stake` function, providing their identifying information (staker's name or address), a guard for their account, and the amount of TRB tokens they wish to stake.
 
@@ -18,7 +19,7 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
 
     At the beginning of this function, there are checks to ensure that the amount pledged is non-negative.
 
-2. **Adding the Staker:**
+**1.2. Adding the Staker:**
 
     The function then interacts with the governance module to add the staker's details (staker's name and guard) to the contract's database. This is done using a combination of `PRIVATE` and `STAKER` capabilities.
 
@@ -27,7 +28,7 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
     (with-capability (STAKER staker) ...)
     ```
 
-3. **Updating the Stake Amounts:**
+**1.3. Updating the Stake Amounts:**
 
     Depending on whether the staker already has a locked balance and if it covers the staking amount, the function either uses that amount or subtracts the locked balance from the amount before transferring the remaining balance from the staker's account. The contract takes into account cases where the staked balance is more than or equal to the locked balance, or where the locked balance is zero.
 
@@ -38,7 +39,7 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
 
     If the staked balance is zero, the function also updates the start vote count and tally in the staker's information, which pulls the counts from the governance contract. This is an essential step for calculating rewards later on.
 
-4. **Updating Staking Rewards and Transfer of Pending Rewards:**
+**1.4. Updating Staking Rewards and Transfer of Pending Rewards:**
 
     After setting any balances, the function then updates the staker's stake amount and any pending rewards. The staker's start date is reset to the current block time.
 
@@ -50,7 +51,7 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
 
     The process ends by emitting a `NewStaker` event that informs of a successful stake deposit.
 
-5. **Event Emission:**
+**1.5. Event Emission:**
 
     ```Pact
     (emit-event (NewStaker staker amount))
@@ -61,7 +62,7 @@ This staking process enables validators to participate in the Tellor ecosystem a
 Pact provides a fluid approach for enforcing such processes with its high-level, human-readable language and control features like capabilities and guards. The staking process in Pact's implementation of Tellor becomes straightforward and efficient due to these characteristics.
 
 
-### Reporting Process
+###2. Reporting Process
 
 One of the central functionalities of the Tellor system is the process of reporting data - this is where the staked reporters can submit values to the oracle. The reporting process is initiated when a staked reporter calls the `submit-value` function. The discussions in this section center around this process and its intricacies:
 
@@ -76,7 +77,7 @@ One of the central functionalities of the Tellor system is the process of report
 
 Here is a step-by-step explanation:
 
-1. **Value Submission:**
+**2.1. Value Submission:**
 In the beginning, the staker is required to submit data to the Tellor oracle. The `submit-value` function takes the `value`, which is the data that the reporter wants to submit in base64 encoded format, and an identifier (`query-id`) that distinguishes this particular data feed.
 
    ```pact
@@ -85,7 +86,7 @@ In the beginning, the staker is required to submit data to the Tellor oracle. Th
      "query id must be hash of query data")
    ```
 
-2. **Condition Validation:**
+**2.2. Condition Validation:**
 The function also takes in a `nonce` and `staker` (reporter's identifier that was used to stake). The `nonce` must either equal the length of existing timestamps for the `query-id` or be zero. This condition ensures the `nonce` is unique for each report and prevents the reporter from submitting data for the same timestamp twice (rate limiting). For the reporter to be eligible to submit the data, they must have staked enough tokens, and they must not be in a "reporting lock" period - a cooldown period to prevent spamming. 
 
     ```pact
@@ -99,7 +100,7 @@ The function also takes in a `nonce` and `staker` (reporter's identifier that wa
        "still in reporter time lock, please wait!")
     ```
 
-3. **Data Insertion:**
+**2.3. Data Insertion:**
 Once the conditions are satisfied, the function goes ahead and inserts the data into the reports table. The new entry contains various data fields such as the `query-id`, the block's timestamp (which is effectively the reporting time), the reported value, the reporter's `staker` string, and a boolean `is-disputed` field which is set to false initially.
 
     ```pact
@@ -114,14 +115,14 @@ Once the conditions are satisfied, the function goes ahead and inserts the data 
        })
     ```
 
-4. **Reward Assignment:**
+**2.4. Reward Assignment:**
 After the report's successful submission, time-based rewards are transferred to the reporting staker. The total reward amount is determined by a separate function (`calculate-time-based-reward`), which is not shown here.
 
     ```pact
     (transfers-from-flex (calculate-time-based-reward block-time) staker)
     ```
 
-5. **&nbsp;Updating Global Records:**
+**2.5. Updating Global Records:**
 The function updates the records for the reporter such as the timestamp of the most recent report and the total number of reports they have submitted. The total count of reports per a `query-id` submitted by the reporter is also updated.
 
     ```pact
@@ -133,7 +134,7 @@ The function updates the records for the reporter such as the timestamp of the m
              (plus-one reports-submitted-by-queryid)})
     ```
    
-6. **Event Emission:**
+**2.6. Event Emission:**
 Finally, an event `NewReport` is emitted marking the completion of the function call, providing a trail of the submitted report details.
 
 ```pact
@@ -144,10 +145,10 @@ This reporting process ensures the Tellor oracle is continuously updated with da
 
 
 
-### Voting And Dispute Resolution Process: 
+### 3. Voting And Dispute Resolution Process: 
 The process of resolving a dispute in the Tellor system implemented in Pact starts with the commencement of a dispute. 
 
-#### Dispute Initiation:
+#### 3.1. Dispute Initiation:
 
 The function `begin-dispute` is used to initiate a dispute for a given `query-id` and `timestamp`. 
 
@@ -185,8 +186,8 @@ These initiation processes ensure fairness and transparency in the Tellor system
 
 
 
-#### Voting
----
+#### 3.2. Voting
+
 One of the fundamental components of the Tellor oracle system—implemented in the Pact programming language—is the voting process. This process, intertwined with the dispute resolution mechanism, attempts to ensure the accuracy of submitted data. Especially in cases where data submitted by staked entities is disputed, the votes cast by various stakeholders may determine the validity of reported data. 
 
 The 'vote' and 'tally-votes' functions in the implementation code embody this voting process. Let's delve further and shed light on how they operate within the Tellor oracle system in the context of Pact.
@@ -196,7 +197,7 @@ The 'vote' and 'tally-votes' functions in the implementation code embody this vo
   (dispute-id:integer supports:bool invalid:bool voter-account:string) ... )
 ```
 
-**Voting Process**
+**3.2.1 Voting Process**
 
 The 'vote' function provides the mechanism for participating stakeholders to cast their votes on an ongoing dispute. The block of code handles the voting process in three possible scenarios—when the vote 'supports' the data, when it is 'against' the data, and when the reported data is deemed 'invalid.' 
 
@@ -212,7 +213,7 @@ Once the vote is processed, the function returns an event of successful voting u
 (defun tally-votes:bool (dispute-id:integer) ... )
 ```
 
-**Vote Tallying Process**
+**3.2.2. Vote Tallying Process**
 
 The 'tally-votes' function is integral to determining the result of a dispute. It uses a stake-weighted mechanism to tally the votes, calculating the overall standing of 'for,' 'against,' and 'invalid' votes for a specific dispute.
 
@@ -222,7 +223,7 @@ Once the totals for all types of votes are calculated and scaled distributed ove
 
 Following vote tallying, the code updates the result and tally date in the database and emits an event signaling the successful tallying of votes. 
 
-#### Executing Votes
+#### 3.3. Executing Votes
 
 In the Tellor system built on Pact, the act of vote execution finalizes the voting process for a particular dispute and triggers the appropriate transfer of stakes and fees based on the result. This functionality is encompassed in the `execute-vote` function. 
 
@@ -232,7 +233,7 @@ The `execute-vote` function takes one parameter, the dispute ID, and it performs
 (defun execute-vote:bool (dispute-id:integer)
 ```
 
-**Ensuring Validity**
+**3.3.1. Ensuring Validity**
 
 The function first checks the validity of the entered dispute id by ensuring that it is within the existing range of dispute ids.
 ```pact
@@ -249,7 +250,7 @@ It then checks that the vote has not yet been executed and that the vote has bee
   "1 day has to pass after tally to allow for disputes")
 ```
 
-**Transferring Stakes and Fees**
+**3.3.2. Transferring Stakes and Fees**
 
 After these conditions are met, the function will initiate stake and fee transfers based on the result of the vote. If the vote was passed, or failed, or was deemed invalid, it handles the situations differently.
 
@@ -268,7 +269,7 @@ After these conditions are met, the function will initiate stake and fee transfe
 - In case the vote result is "INVALID", the function `vote-invalid` is called, and the slashed amount is transferred back to the disputed reporter.
 - If the vote result is "FAILED", the function `vote-failed` is called. The disputed reporter then receives the slashed amount and the total fees.
 
-**Update Dispute Count**
+**3.3.3. Update Dispute Count**
 
 The function then updates the count of open disputes on the provided query ID. Every time a vote is executed, the contract decrements the count for open disputes on that query ID.
 
@@ -276,7 +277,7 @@ The function then updates the count of open disputes on the provided query ID. E
 (update open-disputes-on-id query-id { "open-disputes-on-id": (- (open-disputes-count query-id) 1)}) )
 ```
 
-**Emitting the VoteExecuted Event**
+**3.3.4. Emitting the VoteExecuted Event**
 
 The function concludes by emitting a `VoteExecuted` event with the dispute ID and the vote result.
 
