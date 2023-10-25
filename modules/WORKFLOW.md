@@ -1,3 +1,9 @@
+# Workflow
+
+This document provides a comprehensive explanation of crucial procedures implemented in the Pact programming language for the operation of the Tellor oracle system. It covers the significant processes that serve as the backbone of the Tellor ecosystem - Staking, Reporting, and Voting, inclusive of Dispute Resolution and Vote Execution. It elucidates how each function operates in detail, emphasizing the specific validation checks, consequential steps, and important interactions involved. The objective is to present a clear and thorough understanding of how the Tellor system, built on Pact, effectively establishes a robust and secure environment for validators, reporters, and voters.
+
+All snipets are excerpts from code in this directory.
+
 ### Staking Process:
 
 Staking is a core mechanism in the Tellor system, wherein validators (referred to as stakers) pledge collateral to ensure honest behavior. The staking process involves locking a specified amount of TRB tokens (Tellor's native cryptocurrency) to secure the right to submit data to the Tellor network.
