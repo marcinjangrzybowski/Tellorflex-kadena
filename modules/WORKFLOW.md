@@ -188,7 +188,7 @@ These initiation processes ensure fairness and transparency in the Tellor system
 
 #### 3.2. Voting
 
-One of the fundamental components of the Tellor oracle system—implemented in the Pact programming language—is the voting process. This process, intertwined with the dispute resolution mechanism, attempts to ensure the accuracy of submitted data. Especially in cases where data submitted by staked entities is disputed, the votes cast by various stakeholders may determine the validity of reported data. 
+One of the fundamental components of this implementation of the Tellor oracle system is the voting process. This process, intertwined with the dispute resolution mechanism, attempts to ensure the accuracy of submitted data. Especially in cases where data submitted by staked entities is disputed, the votes cast by various stakeholders may determine the validity of reported data. 
 
 The 'vote' and 'tally-votes' functions in the implementation code embody this voting process. Let's delve further and shed light on how they operate within the Tellor oracle system in the context of Pact.
 
