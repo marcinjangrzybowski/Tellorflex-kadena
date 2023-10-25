@@ -11,17 +11,17 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
 
 **1.1. Initiating the Stake:**
 
-    A user initiates the staking process by invoking the `deposit-stake` function, providing their identifying information (staker's name or address), a guard for their account, and the amount of TRB tokens they wish to stake.
+A user initiates the staking process by invoking the `deposit-stake` function, providing their identifying information (staker's name or address), a guard for their account, and the amount of TRB tokens they wish to stake.
 
     ```pact
     (defun deposit-stake (staker:string guard:guard amount:integer) ...)
     ```
 
-    At the beginning of this function, there are checks to ensure that the amount pledged is non-negative.
+At the beginning of this function, there are checks to ensure that the amount pledged is non-negative.
 
 **1.2. Adding the Staker:**
 
-    The function then interacts with the governance module to add the staker's details (staker's name and guard) to the contract's database. This is done using a combination of `PRIVATE` and `STAKER` capabilities.
+The function then interacts with the governance module to add the staker's details (staker's name and guard) to the contract's database. This is done using a combination of `PRIVATE` and `STAKER` capabilities.
 
     ```pact
     (with-capability (PRIVATE) (add-staker staker guard))
@@ -30,18 +30,18 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
 
 **1.3. Updating the Stake Amounts:**
 
-    Depending on whether the staker already has a locked balance and if it covers the staking amount, the function either uses that amount or subtracts the locked balance from the amount before transferring the remaining balance from the staker's account. The contract takes into account cases where the staked balance is more than or equal to the locked balance, or where the locked balance is zero.
+Depending on whether the staker already has a locked balance and if it covers the staking amount, the function either uses that amount or subtracts the locked balance from the amount before transferring the remaining balance from the staker's account. The contract takes into account cases where the staked balance is more than or equal to the locked balance, or where the locked balance is zero.
 
     ```pact
     (with-read staker-details staker
         { 'locked-balance := locked-balance , 'staked-balance := staked-balance } ...)
     ```
 
-    If the staked balance is zero, the function also updates the start vote count and tally in the staker's information, which pulls the counts from the governance contract. This is an essential step for calculating rewards later on.
+If the staked balance is zero, the function also updates the start vote count and tally in the staker's information, which pulls the counts from the governance contract. This is an essential step for calculating rewards later on.
 
 **1.4. Updating Staking Rewards and Transfer of Pending Rewards:**
 
-    After setting any balances, the function then updates the staker's stake amount and any pending rewards. The staker's start date is reset to the current block time.
+After setting any balances, the function then updates the staker's stake amount and any pending rewards. The staker's start date is reset to the current block time.
 
     ```pact
     (update-stake-and-pay-rewards staker
@@ -49,7 +49,7 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
     (update staker-details staker { 'start-date: block-time } )
     ```
 
-    The process ends by emitting a `NewStaker` event that informs of a successful stake deposit.
+The process ends by emitting a `NewStaker` event that informs of a successful stake deposit.
 
 **1.5. Event Emission:**
 
