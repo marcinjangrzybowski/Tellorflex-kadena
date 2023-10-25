@@ -13,9 +13,9 @@ Staking is a core mechanism in the Tellor system, wherein validators (referred t
 
 A user initiates the staking process by invoking the `deposit-stake` function, providing their identifying information (staker's name or address), a guard for their account, and the amount of TRB tokens they wish to stake.
 
-    ```pact
+```pact
     (defun deposit-stake (staker:string guard:guard amount:integer) ...)
-    ```
+```
 
 At the beginning of this function, there are checks to ensure that the amount pledged is non-negative.
 
@@ -23,19 +23,19 @@ At the beginning of this function, there are checks to ensure that the amount pl
 
 The function then interacts with the governance module to add the staker's details (staker's name and guard) to the contract's database. This is done using a combination of `PRIVATE` and `STAKER` capabilities.
 
-    ```pact
+```pact
     (with-capability (PRIVATE) (add-staker staker guard))
     (with-capability (STAKER staker) ...)
-    ```
+```
 
 **1.3. Updating the Stake Amounts:**
 
 Depending on whether the staker already has a locked balance and if it covers the staking amount, the function either uses that amount or subtracts the locked balance from the amount before transferring the remaining balance from the staker's account. The contract takes into account cases where the staked balance is more than or equal to the locked balance, or where the locked balance is zero.
 
-    ```pact
+```pact
     (with-read staker-details staker
         { 'locked-balance := locked-balance , 'staked-balance := staked-balance } ...)
-    ```
+```
 
 If the staked balance is zero, the function also updates the start vote count and tally in the staker's information, which pulls the counts from the governance contract. This is an essential step for calculating rewards later on.
 
@@ -43,19 +43,19 @@ If the staked balance is zero, the function also updates the start vote count an
 
 After setting any balances, the function then updates the staker's stake amount and any pending rewards. The staker's start date is reset to the current block time.
 
-    ```pact
+```pact
     (update-stake-and-pay-rewards staker
         (+ (at 'staked-balance (read staker-details staker)) amount))
     (update staker-details staker { 'start-date: block-time } )
-    ```
+```
 
 The process ends by emitting a `NewStaker` event that informs of a successful stake deposit.
 
 **1.5. Event Emission:**
 
-    ```Pact
+```Pact
     (emit-event (NewStaker staker amount))
-    ```
+```
 
 This staking process enables validators to participate in the Tellor ecosystem actively and plays a crucial part in ensuring robustness and data integrity within the system. By tying the capability to report data to stakes, Tellor encourages honest participation, as malicious actions could lead to delegitimization and loss of staked resources. 
 
@@ -89,7 +89,7 @@ In the beginning, the staker is required to submit data to the Tellor oracle. Th
 **2.2. Condition Validation:**
 The function also takes in a `nonce` and `staker` (reporter's identifier that was used to stake). The `nonce` must either equal the length of existing timestamps for the `query-id` or be zero. This condition ensures the `nonce` is unique for each report and prevents the reporter from submitting data for the same timestamp twice (rate limiting). For the reporter to be eligible to submit the data, they must have staked enough tokens, and they must not be in a "reporting lock" period - a cooldown period to prevent spamming. 
 
-    ```pact
+```pact
     (enforce (or (= nonce (length timestamps-lis)) (= nonce 0))
       "Nonce must match timestamps list length or be zero")
     (enforce (>= staked-balance stake-amount)
@@ -98,12 +98,12 @@ The function also takes in a `nonce` and `staker` (reporter's identifier that wa
        (* 1000 (- block-time reporter-last-timestamp))
        (/ (* 1000 reporting-lock) (/ staked-balance stake-amount)))
        "still in reporter time lock, please wait!")
-    ```
+```
 
 **2.3. Data Insertion:**
 Once the conditions are satisfied, the function goes ahead and inserts the data into the reports table. The new entry contains various data fields such as the `query-id`, the block's timestamp (which is effectively the reporting time), the reported value, the reporter's `staker` string, and a boolean `is-disputed` field which is set to false initially.
 
-    ```pact
+```pact
     (insert reports (concatenate query-id block-time)
        { 'index: (length timestamps-lis)
          'query-id: query-id
@@ -113,26 +113,26 @@ Once the conditions are satisfied, the function goes ahead and inserts the data 
          'reporter: staker
          'is-disputed: false 
        })
-    ```
+```
 
 **2.4. Reward Assignment:**
 After the report's successful submission, time-based rewards are transferred to the reporting staker. The total reward amount is determined by a separate function (`calculate-time-based-reward`), which is not shown here.
 
-    ```pact
+```pact
     (transfers-from-flex (calculate-time-based-reward block-time) staker)
-    ```
+```
 
 **2.5. Updating Global Records:**
 The function updates the records for the reporter such as the timestamp of the most recent report and the total number of reports they have submitted. The total count of reports per a `query-id` submitted by the reporter is also updated.
 
-    ```pact
+```pact
     (update staker-details staker
       { 'reports-submitted: (plus-one reports-submitted)
       , 'reporter-last-timestamp: block-time})
     (write reports-submitted-count (+ query-id staker)
          {'reports-submitted-by-queryid:
              (plus-one reports-submitted-by-queryid)})
-    ```
+```
    
 **2.6. Event Emission:**
 Finally, an event `NewReport` is emitted marking the completion of the function call, providing a trail of the submitted report details.
