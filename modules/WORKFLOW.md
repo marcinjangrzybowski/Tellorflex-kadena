@@ -209,11 +209,12 @@ If a voter has voted 'invalid,' the code adds the stakeholder's balance and the 
 
 Once the vote is processed, the function returns an event of successful voting using the 'emit-event' function.
 
+
+**3.2.2. Vote Tallying Process**
+
 ```pact
 (defun tally-votes:bool (dispute-id:integer) ... )
 ```
-
-**3.2.2. Vote Tallying Process**
 
 The 'tally-votes' function is integral to determining the result of a dispute. It uses a stake-weighted mechanism to tally the votes, calculating the overall standing of 'for,' 'against,' and 'invalid' votes for a specific dispute.
 
