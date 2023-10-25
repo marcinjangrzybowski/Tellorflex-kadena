@@ -22,6 +22,8 @@ Key modules like `tellorflex.pact`, `governance.pact`, `autopay.pact` were devis
   
   ; helper functions
 )
+
+; initialisation
 ```
 
 2. The `governance.pact` module is in charge of the oracle's governance strategy and the voting method.
