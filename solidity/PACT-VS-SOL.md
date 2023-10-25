@@ -1,6 +1,6 @@
 # Tellor's `begin-dispute` function: A comparison between Solidity and Pact Implementations
 
-In this document, we will compare the implementation of Tellor's `begin-dispute` function in both Solidity and Pact programming languages. The objective is to showcase the syntax, functional similarities, and distinct features offered by both languages, assuming the reader has a foundational understanding of Solidity. The comparison serves as a pedagogical introduction to the Pact language, a newcomer in smart contract languages with its own unique set of features.
+In this document, we will compare the implementation of Tellor's `begin-dispute` function in both Solidity and Pact programming languages. The objective is to showcase the syntax, functional similarities, and distinct features offered by both languages, assuming the reader has a foundational understanding of Solidity. The comparison serves as a pedagogical introduction to the Pact, smart contract languages with its own unique set of features.
 
 Solidity version of discussed code comes from [/solidity/Governance.sol](/Governance.sol#L111C5-L179C6)
 
