@@ -1,6 +1,6 @@
 ## Overview of the Pact Modules
 
-Here we are giving breif overview of how implementation fo Tellorflex in Pact is strucutred, while introducing basic concepts of Pact language.
+Here we are giving breif overview of how implementation of Tellorflex in Pact is strucutred, while introducing basic concepts of Pact language.
 
 Key modules like `tellorflex.pact`, `governance.pact`, `autopay.pact` were devised to reproduce Tellor functionalities in Pact. They are replicating functionalities of analogous solidity contract also developed by Tellor team.
 
