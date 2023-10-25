@@ -5,7 +5,7 @@ It elucidates how each function operates in detail, emphasizing the specific val
 
 All snipets are excerpts from code in this directory.
 
-### 1 Staking Process:
+## 1. Staking Process:
 
 Staking is a core mechanism in the Tellor system, wherein validators (referred to as stakers) pledge collateral to ensure honest behavior. The staking process involves locking a specified amount of TRB tokens (Tellor's native cryptocurrency) to secure the right to submit data to the Tellor network.
 
@@ -62,7 +62,7 @@ This staking process enables validators to participate in the Tellor ecosystem a
 Pact provides a fluid approach for enforcing such processes with its high-level, human-readable language and control features like capabilities and guards. The staking process in Pact's implementation of Tellor becomes straightforward and efficient due to these characteristics.
 
 
-###2. Reporting Process
+## 2. Reporting Process
 
 One of the central functionalities of the Tellor system is the process of reporting data - this is where the staked reporters can submit values to the oracle. The reporting process is initiated when a staked reporter calls the `submit-value` function. The discussions in this section center around this process and its intricacies:
 
@@ -145,7 +145,7 @@ This reporting process ensures the Tellor oracle is continuously updated with da
 
 
 
-### 3. Voting And Dispute Resolution Process: 
+## 3. Voting And Dispute Resolution Process: 
 The process of resolving a dispute in the Tellor system implemented in Pact starts with the commencement of a dispute. 
 
 #### 3.1. Dispute Initiation:
