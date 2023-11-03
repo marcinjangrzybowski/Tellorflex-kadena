@@ -1,6 +1,6 @@
 | File | Function | Capability Required | Capability Granted |
 |-----------|-------------------|-------------------|-------------------|
-| autopay.pact | constructor | None | PRIVATE, f-TRB.TRANSFER |
+| autopay.pact | constructor | None | None |
 | autopay.pact | claim-one-time-tip | PRIVATE | f-TRB.TRANSFER |
 | autopay.pact | calc-total-rewards | PRIVATE | None |
 | autopay.pact | search | PRIVATE | None |
