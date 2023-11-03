@@ -15,22 +15,21 @@ Now, let's delve into comparing the specifics of this function as implemented in
 ## Function Signature
 
 **Solidity (Ethereum):**
-Solidity, a statically typed language designed specifically for Ethereum smart contracts, employs explicit data type declaration for parameters.
+
 
 ```solidity
 function beginDispute(bytes32 _queryId, uint256 _timestamp) external {...}
 ```
 
-In this function definition, the data types of parameters `_queryId` and `_timestamp` are strictly defined as `bytes32` and `uint256` respectively. The `external` modifier used here restricts the function invocation to external calls only.
+ The `external` modifier used here restricts the function invocation to external calls only.
 
 **Pact (Kadena):**
-Contrastingly, Pact introduces a more reader-friendly approach in its function definition, even with similar explicit type declarations.
+
 
 ```pact
 (defun begin-dispute:bool (account:string query-id:string timestamp:integer) {...})
 ```
 
-In this definition, along with the `account`, `query-id`, and `timestamp` parameters, Pact goes a step further to define the return type (`bool`) right in the function's signature. 
 
 ## Checking Report Existence
 
