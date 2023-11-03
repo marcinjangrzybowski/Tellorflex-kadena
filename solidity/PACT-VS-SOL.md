@@ -107,4 +107,4 @@ require(
 
 The comparison above provides a direct measure of the similarities and differences between Solidity and Pact in implementing a function central to the Tellor oracle, `begin-dispute`. 
 
-Pact especially stands out with its declarative nature, inbuilt database operations, enhanced security with capabilities, and robust provision for contract upgrade potential. These nuanced characteristics highlight Pact's appeal for effective smart contract development.
+Pact especially stands out with its declarative nature, inbuilt database operations, enhanced security with capabilities, and robust provision for contract upgrade potential.
